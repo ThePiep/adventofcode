@@ -1,0 +1,14 @@
+create day:
+  mkdir -p "{{day}}"
+  cp prog_template.py "{{day}}/prog.py" -n
+  touch "{{day}}/input.txt"
+  touch "{{day}}/example.txt"
+  echo "Created directory for {{day}}"
+  just get-input {{replace(day, 'day', '')}}
+
+
+session := `grep -oE 'session=[^;[:space:]]+' cookies.txt | head -n1 | cut -d= -f2`
+get-input day_number:
+  echo "Fetching input for day {{day_number}}"
+  echo "session: {{session}}"
+  curl --output "day{{day_number}}/input.txt" -b "session={{session}}" -v -L "https://adventofcode.com/2025/day/{{day_number}}/input" 
