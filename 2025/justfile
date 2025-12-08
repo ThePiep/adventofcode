@@ -4,11 +4,11 @@ create day:
   touch "{{day}}/input.txt"
   touch "{{day}}/example.txt"
   echo "Created directory for {{day}}"
-  just get-input {{replace(day, 'day', '')}}
-
+  just get-input {{day}}
 
 session := `grep -oE 'session=[^;[:space:]]+' cookies.txt | head -n1 | cut -d= -f2`
-get-input day_number:
-  echo "Fetching input for day {{day_number}}"
+
+get-input day:
+  echo "Fetching input for {{day}}"
   echo "session: {{session}}"
-  curl --output "day{{day_number}}/input.txt" -b "session={{session}}" -v -L "https://adventofcode.com/2025/day/{{day_number}}/input" 
+  curl --output "{{day}}/input.txt" -b "session={{session}}" -v -L "https://adventofcode.com/2025/day/{{replace(day, 'day', '')}}/input" 
