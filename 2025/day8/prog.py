@@ -12,14 +12,14 @@ type Cords = list[Cord]
 
 def parse_input(input: Path) -> Cords:
     return [
-        (scord[0], scord[1], scord[2])
-        for scord in [
+        (c[0], c[1], c[2])
+        for c in [
             list(map(int, cord.strip().split(","))) for cord in open(input).readlines()
         ]
     ]
 
 
-def dist(cord1: Cord, cord2: Cord) -> float:
+def dist(cord1: Cord, cord2: Cord) -> int:
     return (
         (cord1[0] - cord2[0]) ** 2
         + (cord1[1] - cord2[1]) ** 2
@@ -27,60 +27,56 @@ def dist(cord1: Cord, cord2: Cord) -> float:
     )
 
 
-def part1(cords: Cords, n: int):
+def uf_find(uf: dict[Cord, Cord], cord: Cord) -> Cord:
+    if cord == uf[cord]:
+        return cord
+    uf[cord] = uf_find(uf, uf[cord])
+    return uf[cord]
+
+
+def uf_combine(uf: dict[Cord, Cord], cord1: Cord, cord2: Cord) -> None:
+    uf[uf_find(uf, cord1)] = uf_find(uf, cord2)
+
+
+def sort_by_dist(cords: Cords):
     store: list[tuple[float, Cord, Cord]] = []
     for i, cord1 in tqdm(enumerate(cords), desc="Building distance store"):
         for _, cord2 in enumerate(cords[i + 1 :]):
             d = dist(cord1, cord2)
-            # bisect.insort_right(store, (d, cord1, cord2), key=lambda x: x[0])
             store.append((d, cord1, cord2))
-    store.sort(key=lambda x: x[0])
+    return sorted(store, key=lambda x: x[0])
 
-    sets: list[set[Cord]] = [set({cord}) for cord in cords]
-    for _, cord1, cord2 in tqdm(store[:n], desc="Building components"):
-        set1, set2 = None, None
-        for s in sets:
-            set1 = s if cord1 in s else set1
-            set2 = s if cord2 in s else set2
-        if set1 is None or set2 is None:
-            raise Exception("set not found")
-        if set1 & set2 == set():
-            set1 |= set2
-            sets.remove(set2)
 
-    lens = sorted([len(s) for s in sets], reverse=True)
+def part1(cords: Cords, n: int):
+    store = sort_by_dist(cords)
+
+    UF: dict[Cord, Cord] = {i: i for i in cords}  # union-find structure
+    for _, cord1, cord2 in store[:n]:
+        if uf_find(UF, cord1) != uf_find(UF, cord2):
+            uf_combine(UF, cord1, cord2)
+
+    D: dict[Cord, set[Cord]] = {}
+    for x in cords:
+        if uf_find(UF, x) not in D:
+            D[uf_find(UF, x)] = set()
+        D[uf_find(UF, x)].add(x)
+
+    lens = sorted([len(v) for v in D.values()], reverse=True)
     return reduce(lambda a, b: a * b, lens[:3], 1)
 
 
 def part2(cords: Cords):
-    store: list[tuple[float, Cord, Cord]] = []
-    for i, cord1 in tqdm(
-        enumerate(cords), total=len(cords), desc="Building distance store"
-    ):
-        for _, cord2 in enumerate(cords[i + 1 :]):
-            d = dist(cord1, cord2)
-            # bisect.insort_right(store, (d, cord1, cord2), key=lambda x: x[0])
-            store.append((d, cord1, cord2))
-    store.sort(key=lambda x: x[0])
-
-    sets: list[set[Cord]] = [set({cord}) for cord in cords]
+    store = sort_by_dist(cords)
+    UF: dict[Cord, Cord] = {i: i for i in cords}  # union-find structure
+    con = 0
     i = 0
-    last_cord: tuple[Cord, Cord] = ((0, 0, 0), (0, 0, 0))
-    while len(sets) > 1:
+    while con < len(cords) - 1:
         _, cord1, cord2 = store[i]
-        last_cord = (cord1, cord2)
-        set1, set2 = None, None
-        for s in sets:
-            set1 = s if cord1 in s else set1
-            set2 = s if cord2 in s else set2
-        if set1 is None or set2 is None:
-            raise Exception("set not found")
-        if set1 & set2 == set():
-            set1 |= set2
-            sets.remove(set2)
+        if uf_find(UF, cord1) != uf_find(UF, cord2):
+            uf_combine(UF, cord1, cord2)
+            con += 1
         i += 1
-
-    return last_cord[0][0] * last_cord[1][0]
+    return store[i - 1][1][0] * store[i - 1][2][0]
 
 
 print("Part 1 (ex): ", part1(parse_input(example_path), 10))
