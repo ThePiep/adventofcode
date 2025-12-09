@@ -27,15 +27,12 @@ def part1(lines: Input):
                 count += 1
         lasers -= to_remove
         lasers |= to_add
-    print(lasers)
-    return count
+    return count, lasers
 
 
 def part2(lines: Input):
     @cache
     def part2_rec(row: int, laser_pos: int, count: int) -> int:
-        # print(len(lines))
-        print(row)
         if row >= len(lines):
             return 1
         if lines[row][laser_pos] == "^":
@@ -49,9 +46,9 @@ def part2(lines: Input):
 
 
 print("Part 1 (ex): ", part1(parse_input(example_path)))
-assert part1(parse_input(example_path)) == 21
+assert part1(parse_input(example_path))[0] == 21
 print("Part 1: ", part1(parse_input(input_path)))
 
 print("Part 2 (ex): ", part2(parse_input(example_path)))
-# assert part2(parse_input(example_path)) == 40
+assert part2(parse_input(example_path)) == 40
 print("Part 2: ", part2(parse_input(input_path)))

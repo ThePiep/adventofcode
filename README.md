@@ -1,6 +1,6 @@
 ## Advent of Code (AoC)
 
-This repository contains my progress on my solutions to eh yearly [Advent of Code](https://adventofcode.com/) event.
+This repository contains my progress on my solutions to the yearly [Advent of Code](https://adventofcode.com/) event.
 
 ### Obtaining input files
 
