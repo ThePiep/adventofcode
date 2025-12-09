@@ -1,4 +1,5 @@
 from functools import reduce
+import heapq
 from pathlib import Path
 from tqdm import tqdm
 
@@ -43,15 +44,15 @@ def sort_by_dist(cords: Cords):
     for i, cord1 in tqdm(enumerate(cords), desc="Building distance store"):
         for _, cord2 in enumerate(cords[i + 1 :]):
             d = dist(cord1, cord2)
-            store.append((d, cord1, cord2))
-    return sorted(store, key=lambda x: x[0])
+            heapq.heappush(store, (d, cord1, cord2))
+    return store
 
 
 def part1(cords: Cords, n: int):
     store = sort_by_dist(cords)
 
     UF: dict[Cord, Cord] = {i: i for i in cords}  # union-find structure
-    for _, cord1, cord2 in store[:n]:
+    for _, cord1, cord2 in heapq.nsmallest(n, store):
         if uf_find(UF, cord1) != uf_find(UF, cord2):
             uf_combine(UF, cord1, cord2)
 
@@ -69,19 +70,19 @@ def part2(cords: Cords):
     store = sort_by_dist(cords)
     UF: dict[Cord, Cord] = {i: i for i in cords}  # union-find structure
     con = 0
-    i = 0
+    _, cord1, cord2 = store[0]
     while con < len(cords) - 1:
-        _, cord1, cord2 = store[i]
+        _, cord1, cord2 = heapq.heappop(store)
         if uf_find(UF, cord1) != uf_find(UF, cord2):
             uf_combine(UF, cord1, cord2)
             con += 1
-        i += 1
-    return store[i - 1][1][0] * store[i - 1][2][0]
+    return cord1[0] * cord2[0]
 
 
 print("Part 1 (ex): ", part1(parse_input(example_path), 10))
 assert part1(parse_input(example_path), 10) == 40
 print("Part 1: ", part1(parse_input(input_path), 1000))
+
 
 print("Part 2 (ex): ", part2(parse_input(example_path)))
 assert part2(parse_input(example_path)) == 25272
