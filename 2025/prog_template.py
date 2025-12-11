@@ -20,10 +20,18 @@ def part2(lines: Input):
     pass
 
 
-print("Part 1 (ex): ", part1(parse_input(example_path)))
-assert part1(parse_input(example_path)) == True
-print("Part 1: ", part1(parse_input(input_path)))
+print("-" * 40)
 
-print("Part 2 (ex): ", part2(parse_input(example_path)))
-assert part2(parse_input(example_path)) == True
-print("Part 2: ", part2(parse_input(input_path)))
+part1_ex = part1(parse_input(example_path))
+print("Part 1 (ex): ", part1_ex)
+# assert part1_ex == True
+# print("Part 1: ", part1(parse_input(input_path)))
+
+print("-" * 40)
+
+# part2_ex = part2(parse_input(example_path))
+# print("Part 2 (ex): ", part2_ex)
+# assert part2_ex == True
+# print("Part 2: ", part2(parse_input(input_path)))
+
+# print("-" * 40)
